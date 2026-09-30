@@ -1,0 +1,26 @@
+# Optional: expose the Argo CD API/UI through the same AWS Load Balancer Controller used for the app.
+# Requires argocd-server installed with `--set server.insecure=true` (plaintext HTTP/2 upstream - the
+# demo ALB below does not terminate TLS; see README before using this beyond a lab).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-server-ingress
+  namespace: argocd
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    alb.ingress.kubernetes.io/backend-protocol-version: GRPC
+    alb.ingress.kubernetes.io/success-codes: "0-99"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argocd-server
+                port:
+                  number: 80

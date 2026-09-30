@@ -1,0 +1,61 @@
+# Image repository/tag per service - this is what Argo CD Image Updater patches on each new build.
+frontend:
+  image:
+    repository: "717292229347.dkr.ecr.us-east-1.amazonaws.com/ecom-app-dev-frontend"
+    tag: "latest"
+  replicaCount: 2
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { cpu: 200m, memory: 128Mi }
+
+middleware:
+  image:
+    repository: "717292229347.dkr.ecr.us-east-1.amazonaws.com/ecom-app-dev-middleware"
+    tag: "latest"
+  replicaCount: 2
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { cpu: 300m, memory: 256Mi }
+
+backend:
+  image:
+    repository: "717292229347.dkr.ecr.us-east-1.amazonaws.com/ecom-app-dev-backend"
+    tag: "latest"
+  replicaCount: 2
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { cpu: 300m, memory: 128Mi }
+
+ingress:
+  enabled: true
+  # ALB path routing: / -> frontend, /api -> middleware. Requires the AWS Load Balancer Controller.
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+
+# Bitnami dependency charts - `helm dependency update` before first install/package.
+# Read-heavy catalog/reviews cache in Redis; checkout/payments/reviews persist in Postgres (never cached).
+postgresql:
+  enabled: true
+  auth:
+    username: ecom
+    password: "changeme" # override via --set or a sealed/external secret before any real deployment
+    database: ecom
+  primary:
+    persistence:
+      size: 5Gi
+    resources:
+      requests: { cpu: 100m, memory: 256Mi }
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false # demo simplicity - enable + inject a secret before production use
+  master:
+    persistence:
+      size: 1Gi
+    resources:
+      requests: { cpu: 50m, memory: 128Mi }

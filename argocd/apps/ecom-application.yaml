@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ecom
+  namespace: argocd
+  annotations:
+    # Argo CD Image Updater: one alias per image, each pointing at the Helm value it should patch -
+    # this is what lets CI push a new tag and have it land in values.yaml via a Git commit automatically.
+    argocd-image-updater.argoproj.io/image-list: >-
+      frontend=717292229347.dkr.ecr.us-east-1.amazonaws.com/ecom-app-dev-frontend,
+      middleware=717292229347.dkr.ecr.us-east-1.amazonaws.com/ecom-app-dev-middleware,
+      backend=717292229347.dkr.ecr.us-east-1.amazonaws.com/ecom-app-dev-backend
+    argocd-image-updater.argoproj.io/frontend.update-strategy: latest
+    argocd-image-updater.argoproj.io/frontend.allow-tags: "regexp:^[0-9a-f]{7,40}$"
+    argocd-image-updater.argoproj.io/frontend.helm.image-name: frontend.image.repository
+    argocd-image-updater.argoproj.io/frontend.helm.image-tag: frontend.image.tag
+    argocd-image-updater.argoproj.io/middleware.update-strategy: latest
+    argocd-image-updater.argoproj.io/middleware.allow-tags: "regexp:^[0-9a-f]{7,40}$"
+    argocd-image-updater.argoproj.io/middleware.helm.image-name: middleware.image.repository
+    argocd-image-updater.argoproj.io/middleware.helm.image-tag: middleware.image.tag
+    argocd-image-updater.argoproj.io/backend.update-strategy: latest
+    argocd-image-updater.argoproj.io/backend.allow-tags: "regexp:^[0-9a-f]{7,40}$"
+    argocd-image-updater.argoproj.io/backend.helm.image-name: backend.image.repository
+    argocd-image-updater.argoproj.io/backend.helm.image-tag: backend.image.tag
+    argocd-image-updater.argoproj.io/write-back-method: git
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/RanjitThakur678/argoCD-k8s-demo.git
+    targetRevision: main
+    path: charts/ecom
+    helm:
+      valueFiles:
+        - values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ecom
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

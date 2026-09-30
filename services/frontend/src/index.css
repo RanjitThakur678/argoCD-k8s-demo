@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* The "glass" look used across cards/panels - translucent, blurred, subtle border. */
+  .glass {
+    @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-xl rounded-2xl;
+  }
+}

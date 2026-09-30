@@ -1,0 +1,4 @@
+# Force LF line endings regardless of platform - matters most for build-and-push.sh,
+# which breaks on Linux/Git Bash if checked out with CRLF (bad interpreter).
+* text=auto eol=lf
+*.sh text eol=lf

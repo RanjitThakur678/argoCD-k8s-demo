@@ -1,0 +1,40 @@
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform.lock.hcl
+crash.log
+crash.*.log
+
+# Secrets / credentials - never commit
+*.pem
+*.key
+.env
+*.env
+credentials
+aws_credentials*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+
+# Local build artifacts
+*.zip
+
+# Node / frontend
+node_modules/
+dist/
+
+# Python / middleware
+__pycache__/
+*.pyc
+.venv/
+
+# Go
+services/backend/backend
+
+# Helm - dependency archives are refetched via `helm dependency update`; Chart.lock stays committed.
+charts/*/charts/*.tgz

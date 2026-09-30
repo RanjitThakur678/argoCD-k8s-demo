@@ -1,0 +1,50 @@
+# Grafana dashboards to watch given our read/write-heavy domain split:
+# - catalog & reviews: request rate + cache hit ratio (backend_cache_result_total) - are we
+#   actually saving Postgres load, or is TTL too short/long?
+# - cart: write latency (backend_request_duration_seconds{domain="cart"}) - Redis should keep this near-zero.
+# - checkout/payment: error rate and p99 latency - these can never be cached, so this is the real
+#   capacity signal for the app.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: "62.3.1"
+    helm:
+      values: |
+        grafana:
+          enabled: true
+          defaultDashboardsEnabled: true
+          adminPassword: "changeme" # override via --set or a sealed/external secret before any real deployment
+        prometheus:
+          prometheusSpec:
+            retention: 7d
+            resources:
+              requests: { cpu: 200m, memory: 512Mi }
+            # Auto-discovers ServiceMonitors for backend/middleware /metrics endpoints (see charts/ecom).
+            serviceMonitorSelectorNilUsesHelmValues: false
+        alertmanager:
+          enabled: true
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

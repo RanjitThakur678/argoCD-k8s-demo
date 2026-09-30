@@ -1,0 +1,10 @@
+aws_region   = "us-east-1"
+project_name = "ecom-app"
+environment  = "dev"
+node_desired_size = 2
+node_min_size     = 2
+node_max_size     = 4
+# Restrict this to your IP in CIDR form, e.g. ["1.2.3.4/32"].
+# Left open (0.0.0.0/0) by default only for demo convenience.
+cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"]
+github_repo = "RanjitThakur678/argoCD-k8s-demo"

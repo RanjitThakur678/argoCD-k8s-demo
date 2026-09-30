@@ -1,0 +1,29 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "ecom.fullname" . }}-ingress
+  labels:
+    {{- include "ecom.labels" . | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  rules:
+    - http:
+        paths:
+          # More specific path first - ALB/nginx both match longest-prefix, but explicit ordering avoids ambiguity.
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "ecom.fullname" . }}-middleware
+                port:
+                  number: 8000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "ecom.fullname" . }}-frontend
+                port:
+                  number: 80
+{{- end }}

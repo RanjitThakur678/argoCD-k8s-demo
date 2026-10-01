@@ -3,6 +3,8 @@ frontend:
   image:
     repository: "717292229347.dkr.ecr.us-east-1.amazonaws.com/ecom-app-dev-frontend"
     tag: "latest"
+  # Dropped from 2 - this account's EC2 vCPU quota caps the node group at 16 t3.micro nodes, each with a
+  # tiny ENI-based pod ceiling; every extra replica directly competes with Postgres/Redis for a slot.
   replicaCount: 2
   resources:
     requests: { cpu: 50m, memory: 64Mi }
@@ -38,7 +40,13 @@ ingress:
 # Bitnami dependency charts - `helm dependency update` before first install/package.
 # Read-heavy catalog/reviews cache in Redis; checkout/payments/reviews persist in Postgres (never cached).
 postgresql:
+  # Temporarily disabled - isolating scheduling issues on the free-tier node budget. Re-enable once
+  # frontend/middleware/backend are confirmed stable, then redis, one at a time.
   enabled: false
+  # Bitnami pruned most version-pinned tags from docker.io/bitnami/* (Broadcom catalog change) -
+  # the chart's default tag 404s now. bitnamilegacy/* keeps the original tags pullable.
+  image:
+    repository: bitnamilegacy/postgresql
   auth:
     username: ecom
     password: "changeme" # override via --set or a sealed/external secret before any real deployment
@@ -52,6 +60,10 @@ postgresql:
 redis:
   enabled: true
   architecture: standalone
+  # Bitnami pruned most version-pinned tags from docker.io/bitnami/* (Broadcom catalog change) -
+  # the chart's default tag 404s now. bitnamilegacy/* keeps the original tags pullable.
+  image:
+    repository: bitnamilegacy/redis
   auth:
     enabled: false # demo simplicity - enable + inject a secret before production use
   master:

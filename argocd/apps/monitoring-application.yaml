@@ -31,6 +31,15 @@ spec:
             serviceMonitorSelectorNilUsesHelmValues: false
         alertmanager:
           enabled: true
+        # DaemonSet - schedules one pod per node, which multiplies with node count and was exhausting
+        # the free-tier t3.micro nodes' tiny (~4) per-node pod ceiling. Node CPU/memory metrics aren't
+        # critical for this demo's app-level dashboards, so disabling it entirely.
+        nodeExporter:
+          enabled: false
+        # Reduces the number of PrometheusRule objects/admission churn - fewer moving pieces under this
+        # resource budget, not essential for the demo's dashboards.
+        defaultRules:
+          create: false
 
   destination:
     server: https://kubernetes.default.svc

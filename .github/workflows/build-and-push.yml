@@ -6,6 +6,7 @@ on:
     paths:
       - "services/**"
       - ".github/workflows/build-and-push.yml"
+  workflow_dispatch: 
 
 permissions:
   id-token: write # required for OIDC -> AWS role assumption, no static AWS keys stored in this repo

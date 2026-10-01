@@ -38,7 +38,7 @@ ingress:
 # Bitnami dependency charts - `helm dependency update` before first install/package.
 # Read-heavy catalog/reviews cache in Redis; checkout/payments/reviews persist in Postgres (never cached).
 postgresql:
-  enabled: true
+  enabled: false
   auth:
     username: ecom
     password: "changeme" # override via --set or a sealed/external secret before any real deployment
@@ -50,7 +50,7 @@ postgresql:
       requests: { cpu: 100m, memory: 256Mi }
 
 redis:
-  enabled: true
+  enabled: false
   architecture: standalone
   auth:
     enabled: false # demo simplicity - enable + inject a secret before production use

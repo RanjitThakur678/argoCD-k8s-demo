@@ -1,11 +1,20 @@
 import { useEffect, useState } from 'react'
 import { api } from './api'
 
+// No real product photos exist yet - derive a distinct, deterministic gradient per product id
+// instead of depending on an external image CDN (keeps this working on restricted networks too).
+function gradientFor(id) {
+  let hash = 0
+  for (const char of id) hash = (hash * 31 + char.charCodeAt(0)) % 360
+  return `linear-gradient(135deg, hsl(${hash}, 70%, 55%) 0%, hsl(${(hash + 70) % 360}, 70%, 40%) 100%)`
+}
+
 function ProductCard({ product, onSelect, onAddToCart }) {
   return (
     <div className="glass p-4 flex flex-col gap-3 hover:scale-[1.02] transition-transform">
       <div
-        className="h-36 rounded-xl bg-white/20 cursor-pointer"
+        className="h-36 rounded-xl cursor-pointer"
+        style={{ background: gradientFor(product.id) }}
         onClick={() => onSelect(product.id)}
         aria-label={product.name}
       />

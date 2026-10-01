@@ -14,6 +14,7 @@ permissions:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    environment: dev # required: AWS_GITHUB_ACTIONS_ROLE_ARN etc. are environment-scoped variables, not repo-level
     strategy:
       matrix:
         service: [frontend, middleware, backend]

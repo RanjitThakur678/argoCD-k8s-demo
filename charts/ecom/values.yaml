@@ -50,7 +50,7 @@ postgresql:
       requests: { cpu: 100m, memory: 256Mi }
 
 redis:
-  enabled: false
+  enabled: true
   architecture: standalone
   auth:
     enabled: false # demo simplicity - enable + inject a secret before production use

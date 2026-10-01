@@ -36,5 +36,6 @@ __pycache__/
 # Go
 services/backend/backend
 
-# Helm - dependency archives are refetched via `helm dependency update`; Chart.lock stays committed.
-charts/*/charts/*.tgz
+# Helm dependency archives (postgresql/redis .tgz) are committed, NOT ignored - Argo CD's repo-server
+# would otherwise have to re-run `helm dependency build` (network fetch + template) on every reconcile,
+# which is too memory/CPU-heavy for the free-tier t3.micro nodes and was crash-looping repo-server.
